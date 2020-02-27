@@ -3,8 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 function Square(props) {
+    let classNames = 'square';
+    if (props.winningSquare) {
+        classNames += ' winning-square'
+    }
     return (
-        <button className="square"
+        <button className={classNames}
                 onClick={props.onClick}
         >
             {props.value}
@@ -13,21 +17,24 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-    renderSquare(i) {
+    renderSquare(i, isWinningSquare) {
         return (
             <Square key={i}
                     value={this.props.squares[i]}
+                    winningSquare={isWinningSquare}
                     onClick={() => this.props.onClick(i)}
             />
         );
     }
 
     render() {
+        const winningLine = this.props.winningLine;
         let board = [];
         for (let i = 0; i < 3; i++) {
             let row = [];
             for (let j = 0; j < 3; j++) {
-                row.push(this.renderSquare((i * 2) + i + j));
+                let key = (i * 2) + i + j;
+                row.push(this.renderSquare(key, winningLine ? winningLine.includes(key) : false));
             }
             board.push(
                 <div key={i}
@@ -59,7 +66,7 @@ class Game extends React.Component {
     }
 
     handleClick(i) {
-        const prevSelectedMoveItems = document.getElementsByClassName('selectedMoveItem');
+        const prevSelectedMoveItems = document.getElementsByClassName('selected-move-item');
         if (prevSelectedMoveItems.length) {
             prevSelectedMoveItems[0].classList.remove('selectedMoveItem');
         }
@@ -82,7 +89,7 @@ class Game extends React.Component {
     }
 
     jumpTo(step) {
-        const prevSelectedMoveItems = document.getElementsByClassName('selectedMoveItem');
+        const prevSelectedMoveItems = document.getElementsByClassName('selected-move-item');
         if (prevSelectedMoveItems.length) {
             prevSelectedMoveItems[0].classList.remove('selectedMoveItem');
         }
@@ -107,7 +114,9 @@ class Game extends React.Component {
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
+        const orderIsAscending = this.state.orderIsAscending;
+        const winnerObject = calculateWinner(current.squares);
+
 
         let prevStep = history[0];
         let moves = history.map((step, move) => {
@@ -132,13 +141,14 @@ class Game extends React.Component {
         });
 
         let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
+        let winningLine;
+        if (winnerObject) {
+            status = 'Winner: ' + winnerObject.winner;
+            winningLine = winnerObject.line;
         } else {
             status = 'Next player: '+ ( this.state.xIsNext ? 'X' : 'O' );
         }
 
-        const orderIsAscending = this.state.orderIsAscending;
         let orderToggleButtonText;
         if (orderIsAscending) {
             orderToggleButtonText = 'Descending ';
@@ -151,6 +161,7 @@ class Game extends React.Component {
             <div className="game">
                 <div className="game-board">
                     <Board squares={current.squares}
+                           winningLine={winningLine}
                            onClick={(i) => this.handleClick(i)}
                     />
                 </div>
@@ -187,7 +198,10 @@ function calculateWinner(squares) {
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
+            return {
+                winner: squares[a],
+                line: lines[i],
+            };
         }
     }
     return null;

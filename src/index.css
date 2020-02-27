@@ -7,7 +7,7 @@ ol, ul {
     padding-left: 30px;
 }
 
-.selectedMoveItem   {
+.selected-move-item   {
     font-weight: bold;
 }
 
@@ -34,6 +34,10 @@ ol, ul {
     padding: 0;
     text-align: center;
     width: 34px;
+}
+
+.winning-square {
+    background: #f99999;
 }
 
 .square:focus {

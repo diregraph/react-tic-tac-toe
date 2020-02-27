@@ -57,6 +57,11 @@ class Game extends React.Component {
     }
 
     handleClick(i) {
+        const prevSelectedMoveItems = document.getElementsByClassName('selectedMoveItem');
+        if (prevSelectedMoveItems.length) {
+            prevSelectedMoveItems[0].classList.remove('selectedMoveItem');
+        }
+
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
@@ -75,6 +80,11 @@ class Game extends React.Component {
     }
 
     jumpTo(step) {
+        const prevSelectedMoveItems = document.getElementsByClassName('selectedMoveItem');
+        if (prevSelectedMoveItems.length) {
+            prevSelectedMoveItems[0].classList.remove('selectedMoveItem');
+        }
+        document.getElementById(step).classList.add('selectedMoveItem');
         this.setState(
             {
                 stepNumber: step,
@@ -105,7 +115,7 @@ class Game extends React.Component {
             prevStep = step;
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button id={move} onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
         });
